@@ -1,0 +1,1207 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#FF4D99">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<title>Vida Saudável ✨</title>
+<style>
+  :root {
+    --pink: #FF4D99;
+    --pink-light: #FFE6F3;
+    --pink-dark: #CC2D77;
+    --yellow: #FFD93D;
+    --yellow-light: #FFF9E0;
+    --yellow-dark: #CC9E00;
+    --green: #22C55E;
+    --green-light: #DCFCE7;
+    --red: #EF4444;
+    --red-light: #FEE2E2;
+    --orange: #F97316;
+    --orange-light: #FFF0E6;
+    --purple: #A855F7;
+    --purple-light: #F3E8FF;
+    --gray-50: #F9FAFB;
+    --gray-100: #F3F4F6;
+    --gray-200: #E5E7EB;
+    --gray-400: #9CA3AF;
+    --gray-500: #6B7280;
+    --gray-700: #374151;
+    --gray-800: #1F2937;
+    --white: #FFFFFF;
+    --radius: 16px;
+    --radius-lg: 24px;
+    --shadow: 0 2px 12px rgba(0,0,0,0.06);
+    --shadow-pink: 0 4px 20px rgba(255,77,153,0.25);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--gray-50); color: var(--gray-800); overscroll-behavior: none; }
+
+  /* Layout */
+  #app { max-width: 430px; margin: 0 auto; min-height: 100dvh; position: relative; }
+  .page { display: none; padding-bottom: 90px; }
+  .page.active { display: block; }
+
+  /* Bottom Nav */
+  .bottom-nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 430px; background: var(--white); border-top: 1px solid var(--gray-100); z-index: 100; display: flex; box-shadow: 0 -4px 20px rgba(0,0,0,0.06); }
+  .nav-btn { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 10px 4px 14px; border: none; background: none; cursor: pointer; transition: all 0.15s; }
+  .nav-btn .nav-icon { font-size: 22px; transition: transform 0.15s; }
+  .nav-btn .nav-label { font-size: 10px; font-weight: 600; color: var(--gray-400); }
+  .nav-btn.active .nav-label { color: var(--pink); }
+  .nav-btn.active .nav-icon { transform: scale(1.15); }
+  .nav-dot { width: 5px; height: 5px; border-radius: 50%; background: transparent; margin-top: 1px; }
+  .nav-btn.active .nav-dot { background: var(--pink); }
+
+  /* Headers */
+  .page-header { padding: 48px 20px 28px; border-radius: 0 0 28px 28px; color: white; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
+  .page-header h1 { font-size: 24px; font-weight: 800; margin-top: 4px; }
+  .page-header p { font-size: 13px; opacity: 0.75; margin-top: 4px; }
+  .header-pink { background: linear-gradient(135deg, #FF4D99, #FF2D85); }
+  .header-yellow { background: linear-gradient(135deg, #FFD93D, #FFC300); }
+  .header-purple { background: linear-gradient(135deg, #A855F7, #FF4D99); }
+  .header-dark { background: linear-gradient(135deg, #374151, #1F2937); }
+
+  /* Progress bar */
+  .progress-wrap { margin-top: 16px; }
+  .progress-meta { display: flex; justify-content: space-between; font-size: 11px; font-weight: 600; margin-bottom: 6px; }
+  .progress-meta span:first-child { opacity: 0.75; }
+  .progress-track { height: 10px; background: rgba(255,255,255,0.25); border-radius: 10px; overflow: hidden; }
+  .progress-fill { height: 100%; background: var(--yellow); border-radius: 10px; transition: width 0.5s ease; }
+
+  /* Content */
+  .content { padding: 20px 16px 0; }
+  .section-title { display: flex; align-items: center; gap: 8px; margin-bottom: 14px; margin-top: 8px; }
+  .section-bar { width: 4px; height: 20px; border-radius: 4px; }
+  .section-bar.pink { background: var(--pink); }
+  .section-bar.yellow { background: var(--yellow); }
+  .section-title span { font-weight: 700; font-size: 14px; color: var(--gray-800); }
+
+  /* Habit Cards */
+  .habit-card { background: var(--white); border: 2px solid var(--gray-100); border-radius: var(--radius-lg); padding: 14px 16px; margin-bottom: 10px; box-shadow: var(--shadow); transition: all 0.2s; }
+  .habit-card:active { transform: scale(0.98); }
+  .habit-card.done { background: var(--pink-light); border-color: var(--pink); }
+  .habit-card.bad-done { background: var(--red-light); border-color: #FCA5A5; }
+  .habit-card.bad-skipped { background: var(--green-light); border-color: #86EFAC; }
+  .habit-row { display: flex; align-items: center; justify-content: space-between; }
+  .habit-left { display: flex; align-items: center; gap: 10px; }
+  .habit-emoji { font-size: 22px; }
+  .habit-label { font-size: 13px; font-weight: 600; color: var(--gray-700); }
+  .habit-card.done .habit-label { color: #BE185D; }
+  .habit-sublabel { font-size: 11px; color: var(--gray-400); }
+
+  /* Toggle */
+  .toggle { width: 46px; height: 26px; border-radius: 13px; background: var(--gray-200); border: none; cursor: pointer; position: relative; transition: background 0.2s; flex-shrink: 0; }
+  .toggle.on { background: var(--pink); }
+  .toggle::after { content: ''; position: absolute; top: 3px; left: 3px; width: 20px; height: 20px; border-radius: 50%; background: white; box-shadow: 0 1px 4px rgba(0,0,0,0.2); transition: left 0.2s; }
+  .toggle.on::after { left: 23px; }
+
+  /* Expanded content inside card */
+  .card-expand { margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(255,77,153,0.15); }
+  .card-expand label { font-size: 11px; font-weight: 700; color: var(--pink); display: block; margin-bottom: 6px; }
+  .time-input { background: var(--pink-light); color: #BE185D; font-weight: 700; border-radius: 12px; padding: 6px 12px; font-size: 14px; border: none; outline: none; }
+  .time-input:focus { box-shadow: 0 0 0 2px var(--pink); }
+  .pill-options { display: flex; flex-wrap: wrap; gap: 6px; }
+  .pill { padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 700; background: var(--pink-light); color: var(--pink); border: none; cursor: pointer; transition: all 0.15s; }
+  .pill.selected { background: var(--pink); color: white; }
+
+  /* Bad habit buttons */
+  .bad-btns { display: flex; gap: 8px; }
+  .bad-btn { flex: 1; padding: 8px; border-radius: 12px; font-size: 12px; font-weight: 700; border: none; cursor: pointer; background: var(--gray-100); color: var(--gray-500); transition: all 0.15s; }
+  .bad-btn.no-selected { background: var(--green); color: white; }
+  .bad-btn.yes-selected { background: var(--red); color: white; }
+  .badge { font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 20px; margin-left: 6px; }
+  .badge-green { background: var(--green-light); color: #16A34A; }
+  .badge-red { background: var(--red-light); color: #DC2626; }
+
+  /* Meals */
+  .meal-section { margin-bottom: 4px; }
+  .meal-subsection { font-size: 12px; font-weight: 700; color: var(--gray-500); margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
+  .photo-btn { font-size: 11px; font-weight: 700; color: var(--purple); background: var(--purple-light); padding: 6px 10px; border-radius: 10px; border: none; cursor: pointer; display: flex; align-items: center; gap: 4px; flex-shrink: 0; }
+  .meal-choices { display: flex; gap: 6px; margin-top: 8px; }
+  .meal-choice { flex: 1; padding: 8px; border-radius: 12px; font-size: 11px; font-weight: 700; border: none; cursor: pointer; background: var(--gray-100); color: var(--gray-500); transition: all 0.15s; }
+  .meal-choice.healthy { background: var(--green); color: white; }
+  .meal-choice.junk { background: var(--orange); color: white; }
+  .meal-photo { width: 100%; height: 120px; object-fit: cover; border-radius: 12px; margin-top: 8px; }
+  .meal-analysis { margin-top: 8px; background: white; border-radius: 12px; padding: 10px; font-size: 11px; color: var(--gray-700); line-height: 1.5; border: 1px solid #EDE9FE; white-space: pre-wrap; }
+  .analyzing-msg { font-size: 11px; color: var(--purple); margin-top: 6px; display: flex; align-items: center; gap: 6px; }
+  .spin { animation: spin 1s linear infinite; display: inline-block; }
+  @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+  .remove-photo { font-size: 11px; color: var(--gray-400); text-decoration: underline; border: none; background: none; cursor: pointer; margin-top: 4px; }
+
+  /* End of Day */
+  .rating-block { margin-bottom: 24px; }
+  .rating-label { display: flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 700; color: var(--gray-700); margin-bottom: 10px; }
+  .rating-selected { margin-left: auto; font-size: 12px; font-weight: 600; color: var(--pink); }
+  .emoji-row { display: flex; justify-content: space-between; gap: 6px; }
+  .emoji-btn { flex: 1; font-size: 26px; padding: 10px 4px; border-radius: 16px; background: var(--gray-50); border: none; cursor: pointer; transition: all 0.15s; }
+  .emoji-btn.selected { background: var(--pink); transform: scale(1.1); box-shadow: var(--shadow-pink); }
+  .notes-area { width: 100%; height: 90px; background: var(--gray-50); border: 1px solid var(--gray-200); border-radius: var(--radius); padding: 12px; font-size: 13px; font-family: inherit; resize: none; outline: none; color: var(--gray-700); }
+  .notes-area:focus { border-color: var(--pink); box-shadow: 0 0 0 2px var(--pink-light); }
+  .insight-box { background: linear-gradient(135deg, #FFF0F8, #FFFDE7); border: 2px solid var(--pink-light); border-radius: var(--radius-lg); padding: 16px; margin-top: 16px; }
+  .insight-box h4 { font-size: 13px; font-weight: 700; color: var(--pink); margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+  .insight-box p { font-size: 13px; color: var(--gray-700); line-height: 1.6; white-space: pre-wrap; }
+
+  /* Buttons */
+  .btn-primary { width: 100%; padding: 16px; border-radius: var(--radius); font-size: 14px; font-weight: 700; background: var(--pink); color: white; border: none; cursor: pointer; box-shadow: var(--shadow-pink); transition: all 0.15s; }
+  .btn-primary:active { transform: scale(0.97); }
+  .btn-primary:disabled { background: var(--gray-200); color: var(--gray-400); box-shadow: none; cursor: not-allowed; }
+  .btn-secondary { width: 100%; padding: 12px; border-radius: var(--radius); font-size: 13px; font-weight: 600; background: var(--gray-100); color: var(--gray-500); border: 1px solid var(--gray-200); cursor: pointer; }
+  .btn-hint { text-align: center; font-size: 11px; color: var(--gray-400); margin-top: 8px; }
+
+  /* Cards */
+  .card { background: white; border: 1px solid var(--gray-100); border-radius: var(--radius-lg); padding: 18px; margin-bottom: 14px; box-shadow: var(--shadow); }
+  .card h3 { font-size: 14px; font-weight: 700; color: var(--gray-800); margin-bottom: 14px; display: flex; align-items: center; gap: 6px; }
+
+  /* Stats grid */
+  .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+  .stat-card { border-radius: var(--radius); padding: 14px; color: white; }
+  .stat-card .stat-val { font-size: 28px; font-weight: 800; margin-top: 4px; }
+  .stat-card .stat-label { font-size: 11px; font-weight: 600; opacity: 0.85; margin-top: 2px; }
+  .stat-pink { background: linear-gradient(135deg, var(--pink), #CC2D77); }
+  .stat-yellow { background: linear-gradient(135deg, var(--yellow), var(--yellow-dark)); color: #1F2937; }
+  .stat-green { background: linear-gradient(135deg, var(--green), #16A34A); }
+  .stat-purple { background: linear-gradient(135deg, var(--purple), #7C3AED); }
+
+  /* Habit bars */
+  .habit-bar-row { margin-bottom: 14px; }
+  .habit-bar-meta { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; font-size: 12px; }
+  .habit-bar-label { font-weight: 600; color: var(--gray-700); }
+  .habit-bar-pct { font-weight: 700; color: var(--gray-500); }
+  .habit-bar-track { height: 8px; background: var(--gray-100); border-radius: 8px; overflow: hidden; }
+  .habit-bar-fill { height: 100%; border-radius: 8px; transition: width 0.5s; }
+  .fill-pink { background: var(--pink); }
+  .fill-yellow { background: var(--yellow); }
+  .fill-gray { background: var(--gray-200); }
+
+  /* SVG Charts */
+  .chart-wrap { width: 100%; overflow: hidden; }
+  svg text { font-family: -apple-system, sans-serif; }
+
+  /* Period selector */
+  .period-btns { display: flex; gap: 6px; margin-top: 14px; }
+  .period-btn { padding: 6px 14px; border-radius: 20px; font-size: 11px; font-weight: 700; border: none; cursor: pointer; background: rgba(255,255,255,0.25); color: white; transition: all 0.15s; }
+  .period-btn.active { background: white; color: var(--purple); }
+
+  /* Settings */
+  .settings-input { width: 100%; background: var(--gray-50); border: 1px solid var(--gray-200); border-radius: var(--radius); padding: 12px 16px; font-size: 13px; font-family: monospace; color: var(--gray-700); outline: none; }
+  .settings-input:focus { border-color: var(--pink); box-shadow: 0 0 0 2px var(--pink-light); }
+  .settings-label { font-size: 14px; font-weight: 700; color: var(--gray-800); margin-bottom: 4px; display: flex; align-items: center; gap: 6px; }
+  .settings-hint { font-size: 12px; color: var(--gray-400); line-height: 1.5; margin: 6px 0 12px; }
+  .settings-hint strong { color: var(--pink); }
+
+  /* Alerts */
+  .alert { border-radius: var(--radius); padding: 12px 14px; font-size: 12px; font-weight: 500; margin-bottom: 12px; }
+  .alert-success { background: var(--green-light); color: #15803D; border: 1px solid #86EFAC; }
+  .alert-error { background: var(--red-light); color: #DC2626; border: 1px solid #FCA5A5; }
+
+  /* Empty state */
+  .empty-state { text-align: center; padding: 60px 20px; color: var(--gray-400); }
+  .empty-state span { font-size: 60px; display: block; margin-bottom: 12px; }
+  .empty-state p { font-weight: 600; font-size: 14px; }
+  .empty-state small { font-size: 12px; display: block; margin-top: 4px; }
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- HOJE -->
+  <div id="page-hoje" class="page active">
+    <div class="page-header header-pink">
+      <p id="today-date" style="font-size:12px;opacity:.75;text-transform:capitalize"></p>
+      <h1 id="today-greeting"></h1>
+      <div class="progress-wrap">
+        <div class="progress-meta">
+          <span>Progresso do dia</span>
+          <span id="progress-count">0/10</span>
+        </div>
+        <div class="progress-track">
+          <div class="progress-fill" id="progress-fill" style="width:0%"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="content">
+      <!-- BONS HÁBITOS -->
+      <div class="section-title">
+        <div class="section-bar pink"></div>
+        <span>Hábitos para cultivar</span>
+      </div>
+
+      <!-- Acordar cedo -->
+      <div class="habit-card" id="card-wake">
+        <div class="habit-row">
+          <div class="habit-left">
+            <span class="habit-emoji">☀️</span>
+            <div>
+              <div class="habit-label">Acordei antes das 8h30</div>
+              <div class="habit-sublabel" id="wake-time-display"></div>
+            </div>
+          </div>
+          <button class="toggle" id="toggle-wake" onclick="toggleHabit('wokeBefore830', this, 'card-wake', function(v){ showIf('wake-expand', v); })"></button>
+        </div>
+        <div class="card-expand" id="wake-expand" style="display:none">
+          <label>Que horas você acordou?</label>
+          <input type="time" class="time-input" id="wake-time" oninput="setWakeTime(this.value)">
+        </div>
+      </div>
+
+      <!-- Exercício matinal -->
+      <div class="habit-card" id="card-exercise">
+        <div class="habit-row">
+          <div class="habit-left">
+            <span class="habit-emoji">🌅</span>
+            <div>
+              <div class="habit-label">Exercício matinal</div>
+              <div class="habit-sublabel" id="exercise-type-display"></div>
+            </div>
+          </div>
+          <button class="toggle" id="toggle-exercise" onclick="toggleHabit('morningExercise', this, 'card-exercise', function(v){ showIf('exercise-expand', v); })"></button>
+        </div>
+        <div class="card-expand" id="exercise-expand" style="display:none">
+          <label>Qual atividade?</label>
+          <div class="pill-options">
+            <button class="pill" id="ex-yoga" onclick="setExerciseType('yoga')">🧘‍♀️ Yoga</button>
+            <button class="pill" id="ex-bicicleta" onclick="setExerciseType('bicicleta')">🚴‍♀️ Bicicleta</button>
+            <button class="pill" id="ex-corrida" onclick="setExerciseType('corrida')">🏃‍♀️ Corrida</button>
+            <button class="pill" id="ex-natacao" onclick="setExerciseType('natacao')">🏊‍♀️ Natação</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Refeições -->
+      <div class="meal-section">
+        <div class="meal-subsection">🍽️ Refeições <span style="font-weight:400;color:var(--gray-400)">— registre ou mande foto</span></div>
+        <div id="meal-breakfast"></div>
+        <div id="meal-lunch"></div>
+        <div id="meal-dinner"></div>
+      </div>
+
+      <!-- Outros hábitos bons -->
+      <div id="card-music" class="habit-card"><div class="habit-row"><div class="habit-left"><span class="habit-emoji">🎵</span><span class="habit-label">Estudei música</span></div><button class="toggle" id="toggle-music" onclick="toggleHabit('musicStudy', this, 'card-music')"></button></div></div>
+      <div id="card-screen" class="habit-card"><div class="habit-row"><div class="habit-left"><span class="habit-emoji">📵</span><span class="habit-label">Menos de 4h no celular</span></div><button class="toggle" id="toggle-screen" onclick="toggleHabit('screenTimeOk', this, 'card-screen')"></button></div></div>
+      <div id="card-gym" class="habit-card"><div class="habit-row"><div class="habit-left"><span class="habit-emoji">🏋️‍♀️</span><span class="habit-label">Fui para a academia</span></div><button class="toggle" id="toggle-gym" onclick="toggleHabit('gym', this, 'card-gym')"></button></div></div>
+      <div id="card-plants" class="habit-card"><div class="habit-row"><div class="habit-left"><span class="habit-emoji">🌿</span><span class="habit-label">Aguei as plantas</span></div><button class="toggle" id="toggle-plants" onclick="toggleHabit('waterPlants', this, 'card-plants')"></button></div></div>
+      <div id="card-cats" class="habit-card"><div class="habit-row"><div class="habit-left"><span class="habit-emoji">🐱</span><span class="habit-label">Limpei a areia das gatas</span></div><button class="toggle" id="toggle-cats" onclick="toggleHabit('catLitter', this, 'card-cats')"></button></div></div>
+
+      <!-- HÁBITOS A DIMINUIR -->
+      <div class="section-title" style="margin-top:20px">
+        <div class="section-bar yellow"></div>
+        <span>Hábitos a diminuir</span>
+      </div>
+
+      <div class="habit-card" id="card-smoke">
+        <div class="habit-label" style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+          <span style="font-size:22px">🚬</span> Fumei hoje
+          <span class="badge" id="badge-smoke"></span>
+        </div>
+        <div class="bad-btns">
+          <button class="bad-btn" id="bad-smoke-no" onclick="setBadHabit('smoking', false)">😇 Não</button>
+          <button class="bad-btn" id="bad-smoke-yes" onclick="setBadHabit('smoking', true)">😬 Sim</button>
+        </div>
+      </div>
+
+      <div class="habit-card" id="card-drink">
+        <div class="habit-label" style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+          <span style="font-size:22px">🍷</span> Bebi álcool hoje
+          <span class="badge" id="badge-drink"></span>
+        </div>
+        <div class="bad-btns">
+          <button class="bad-btn" id="bad-drink-no" onclick="setBadHabit('drinking', false)">😇 Não</button>
+          <button class="bad-btn" id="bad-drink-yes" onclick="setBadHabit('drinking', true)">😬 Sim</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FIM DO DIA -->
+  <div id="page-fim" class="page">
+    <div class="page-header header-yellow" style="color:#1F2937">
+      <p id="eod-date" style="font-size:12px;opacity:.6;text-transform:capitalize;color:#92400E"></p>
+      <h1 style="color:#1F2937">Como foi o seu dia? 🌙</h1>
+      <p style="color:#78350F;opacity:1;font-size:13px">Avalie e eu conto o que seus hábitos dizem</p>
+    </div>
+    <div class="content">
+      <div class="card">
+        <div class="rating-block">
+          <div class="rating-label">⚡ Disposição / Energia <span class="rating-selected" id="energy-label"></span></div>
+          <div class="emoji-row" id="energy-row">
+            <button class="emoji-btn" data-v="1" onclick="setRating('energy',1)">😩</button>
+            <button class="emoji-btn" data-v="2" onclick="setRating('energy',2)">😕</button>
+            <button class="emoji-btn" data-v="3" onclick="setRating('energy',3)">😐</button>
+            <button class="emoji-btn" data-v="4" onclick="setRating('energy',4)">😊</button>
+            <button class="emoji-btn" data-v="5" onclick="setRating('energy',5)">🤩</button>
+          </div>
+        </div>
+        <div class="rating-block">
+          <div class="rating-label">💭 Humor <span class="rating-selected" id="mood-label"></span></div>
+          <div class="emoji-row" id="mood-row">
+            <button class="emoji-btn" data-v="1" onclick="setRating('mood',1)">😩</button>
+            <button class="emoji-btn" data-v="2" onclick="setRating('mood',2)">😕</button>
+            <button class="emoji-btn" data-v="3" onclick="setRating('mood',3)">😐</button>
+            <button class="emoji-btn" data-v="4" onclick="setRating('mood',4)">😊</button>
+            <button class="emoji-btn" data-v="5" onclick="setRating('mood',5)">🤩</button>
+          </div>
+        </div>
+        <div class="rating-block" style="margin-bottom:0">
+          <div class="rating-label">🎯 Foco <span class="rating-selected" id="focus-label"></span></div>
+          <div class="emoji-row" id="focus-row">
+            <button class="emoji-btn" data-v="1" onclick="setRating('focus',1)">😩</button>
+            <button class="emoji-btn" data-v="2" onclick="setRating('focus',2)">😕</button>
+            <button class="emoji-btn" data-v="3" onclick="setRating('focus',3)">😐</button>
+            <button class="emoji-btn" data-v="4" onclick="setRating('focus',4)">😊</button>
+            <button class="emoji-btn" data-v="5" onclick="setRating('focus',5)">🤩</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>📝 Observação do dia</h3>
+        <textarea class="notes-area" id="eod-notes" placeholder="O que aconteceu? Algo que influenciou seu dia?" oninput="saveNotes(this.value)"></textarea>
+      </div>
+
+      <div id="insight-section" style="display:none">
+        <div class="insight-box">
+          <h4>✨ Insight do dia</h4>
+          <p id="insight-text"></p>
+        </div>
+      </div>
+
+      <div id="eod-alert" style="display:none"></div>
+
+      <div style="margin-top:12px">
+        <button class="btn-primary" id="btn-insight" onclick="generateInsight()" disabled>
+          ✨ Gerar insight do dia com IA
+        </button>
+        <div class="btn-hint">Avalie as 3 métricas acima para gerar o insight 👆</div>
+        <button class="btn-secondary" style="margin-top:8px" onclick="saveEOD()">Salvar sem insight</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- RELATÓRIOS -->
+  <div id="page-relatorios" class="page">
+    <div class="page-header header-purple">
+      <h1>Relatórios 📊</h1>
+      <p>Seus padrões contam uma história</p>
+      <div class="period-btns">
+        <button class="period-btn active" onclick="setPeriod(7, this)">7 dias</button>
+        <button class="period-btn" onclick="setPeriod(14, this)">14 dias</button>
+        <button class="period-btn" onclick="setPeriod(30, this)">30 dias</button>
+      </div>
+    </div>
+    <div class="content" id="reports-content">
+      <div class="empty-state">
+        <span>📭</span>
+        <p>Nenhum dado ainda</p>
+        <small>Comece a registrar seus hábitos hoje!</small>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONFIG -->
+  <div id="page-config" class="page">
+    <div class="page-header header-dark">
+      <h1>Configurações ⚙️</h1>
+      <p style="color:#9CA3AF">Ajuste o app para o seu jeito</p>
+    </div>
+    <div class="content">
+      <div class="card">
+        <div class="settings-label">🔑 Chave da API Anthropic</div>
+        <div class="settings-hint">Necessária para análise de fotos e insights com IA. Acesse <strong>console.anthropic.com</strong> para obter a sua.</div>
+        <input type="password" class="settings-input" id="api-key-input" placeholder="sk-ant-..." oninput="tempApiKey = this.value">
+        <div class="settings-hint" style="margin-top:8px">🔒 Salva apenas no seu dispositivo (localStorage).</div>
+      </div>
+      <div class="card">
+        <div class="settings-label">📱 Instalar no celular</div>
+        <div class="settings-hint">
+          <strong>iPhone/iPad:</strong> Abra no Safari → botão Compartilhar → "Adicionar à Tela Inicial"<br><br>
+          <strong>Android:</strong> Abra no Chrome → menu ⋮ → "Adicionar à tela inicial"<br><br>
+          O app funciona offline depois de instalado! ✅
+        </div>
+      </div>
+      <div class="card">
+        <div class="settings-label">💾 Seus dados</div>
+        <div class="settings-hint">Tudo fica salvo localmente no seu dispositivo. Histórico completo sem limite de tempo — quanto mais você usar, mais precisas ficam as análises! 📈</div>
+      </div>
+      <div id="config-alert" style="display:none"></div>
+      <button class="btn-primary" onclick="saveConfig()">Salvar configurações</button>
+    </div>
+  </div>
+
+  <!-- Bottom Nav -->
+  <nav class="bottom-nav">
+    <button class="nav-btn active" onclick="goTo('hoje', this)">
+      <span class="nav-icon">✅</span>
+      <span class="nav-label">Hoje</span>
+      <div class="nav-dot"></div>
+    </button>
+    <button class="nav-btn" onclick="goTo('fim', this)">
+      <span class="nav-icon">🌙</span>
+      <span class="nav-label">Fim do dia</span>
+      <div class="nav-dot"></div>
+    </button>
+    <button class="nav-btn" onclick="goTo('relatorios', this)">
+      <span class="nav-icon">📊</span>
+      <span class="nav-label">Relatórios</span>
+      <div class="nav-dot"></div>
+    </button>
+    <button class="nav-btn" onclick="goTo('config', this)">
+      <span class="nav-icon">⚙️</span>
+      <span class="nav-label">Config</span>
+      <div class="nav-dot"></div>
+    </button>
+  </nav>
+</div>
+
+<script>
+// ============================================================
+// STORAGE
+// ============================================================
+const STORAGE_KEY = 'vida_saudavel_v1'
+const SETTINGS_KEY = 'vida_saudavel_settings'
+
+function todayKey() {
+  return new Date().toISOString().split('T')[0]
+}
+
+function getAllEntries() {
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}') } catch { return {} }
+}
+
+function getEntry(date) {
+  return getAllEntries()[date] || null
+}
+
+function saveEntryData(date, data) {
+  const all = getAllEntries()
+  all[date] = { ...all[date], ...data, date }
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(all))
+}
+
+function getSettings() {
+  try { return JSON.parse(localStorage.getItem(SETTINGS_KEY) || '{}') } catch { return {} }
+}
+
+function saveSettingsData(s) {
+  localStorage.setItem(SETTINGS_KEY, JSON.stringify(s))
+}
+
+function emptyEntry(date) {
+  return {
+    date,
+    habits: {
+      wokeBefore830: null, wakeTime: '',
+      morningExercise: null, exerciseType: '',
+      meals: { breakfast: {}, lunch: {}, dinner: {} },
+      musicStudy: null, screenTimeOk: null, gym: null,
+      waterPlants: null, catLitter: null,
+      smoking: null, drinking: null,
+    },
+    endOfDay: { energy: null, mood: null, focus: null, notes: '', insight: '', completed: false }
+  }
+}
+
+// ============================================================
+// STATE
+// ============================================================
+let currentDate = todayKey()
+let entry = getEntry(currentDate) || emptyEntry(currentDate)
+let reportPeriod = 7
+let tempApiKey = getSettings().apiKey || ''
+
+function saveHabits() {
+  saveEntryData(currentDate, { habits: entry.habits })
+}
+
+function saveEODData() {
+  saveEntryData(currentDate, { endOfDay: entry.endOfDay })
+}
+
+// ============================================================
+// NAVIGATION
+// ============================================================
+function goTo(page, btn) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'))
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'))
+  document.getElementById('page-' + page).classList.add('active')
+  if (btn) btn.classList.add('active')
+  if (page === 'relatorios') renderReports()
+}
+
+// ============================================================
+// UI HELPERS
+// ============================================================
+function showIf(id, condition) {
+  const el = document.getElementById(id)
+  if (el) el.style.display = condition ? 'block' : 'none'
+}
+
+function $(id) { return document.getElementById(id) }
+
+const GREETINGS = ['Bora arrasar hoje! 🌟', 'Hoje é dia de brilhar ✨', 'Você consegue! 💪', 'Um dia de cada vez 🌱', 'Foco total! 🎯', 'Vamo que vamo! 🔥', 'Conta comigo! 💅']
+const RATING_LABELS = { 1: 'Péssimo', 2: 'Fraco', 3: 'Ok', 4: 'Bom', 5: 'Incrível' }
+const MEAL_INFO = { breakfast: { label: 'Café da manhã', emoji: '🌅' }, lunch: { label: 'Almoço', emoji: '☀️' }, dinner: { label: 'Jantar', emoji: '🌙' } }
+
+function formatDate(d) {
+  return new Date(d + 'T12:00:00').toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' })
+}
+
+// ============================================================
+// INIT
+// ============================================================
+function init() {
+  // Header dates
+  $('today-date').textContent = formatDate(currentDate)
+  $('eod-date').textContent = formatDate(currentDate)
+  $('today-greeting').textContent = GREETINGS[new Date().getDay() % GREETINGS.length]
+
+  // API key
+  $('api-key-input').value = getSettings().apiKey || ''
+  tempApiKey = getSettings().apiKey || ''
+
+  // Render habits from saved state
+  renderHabits()
+  renderMeals()
+  renderEOD()
+  updateProgress()
+}
+
+// ============================================================
+// HABITS
+// ============================================================
+function toggleHabit(key, btn, cardId, callback) {
+  const habits = entry.habits
+  const currentVal = key === 'morningExercise' ? habits.morningExercise : habits[key]
+  const newVal = currentVal === true ? false : true
+
+  if (key === 'morningExercise') {
+    habits.morningExercise = newVal
+    if (!newVal) habits.exerciseType = ''
+  } else {
+    habits[key] = newVal
+  }
+
+  btn.classList.toggle('on', newVal)
+  const card = $(cardId)
+  if (card) card.classList.toggle('done', newVal)
+  if (callback) callback(newVal)
+
+  // Wake time display
+  if (key === 'wokeBefore830') {
+    $('wake-time-display').textContent = (newVal && habits.wakeTime) ? 'às ' + habits.wakeTime : ''
+    if (newVal && habits.wakeTime) $('wake-time').value = habits.wakeTime
+  }
+  if (key === 'morningExercise') {
+    $('exercise-type-display').textContent = (newVal && habits.exerciseType) ? habits.exerciseType : ''
+  }
+
+  saveHabits()
+  updateProgress()
+}
+
+function setWakeTime(v) {
+  entry.habits.wakeTime = v
+  $('wake-time-display').textContent = v ? 'às ' + v : ''
+  saveHabits()
+}
+
+function setExerciseType(type) {
+  entry.habits.exerciseType = type
+  document.querySelectorAll('.pill').forEach(p => p.classList.remove('selected'))
+  $('ex-' + type).classList.add('selected')
+  $('exercise-type-display').textContent = type
+  saveHabits()
+}
+
+function setBadHabit(key, value) {
+  entry.habits[key] = value
+  const isSmoke = key === 'smoking'
+  const card = isSmoke ? 'card-smoke' : 'card-drink'
+  const badgeId = isSmoke ? 'badge-smoke' : 'badge-drink'
+
+  $(card).classList.toggle('bad-done', value === true)
+  $(card).classList.toggle('bad-skipped', value === false)
+
+  const badge = $(badgeId)
+  if (value === false) {
+    badge.textContent = 'isso aí! 🎉'
+    badge.className = 'badge badge-green'
+  } else if (value === true) {
+    badge.textContent = 'registrado'
+    badge.className = 'badge badge-red'
+  } else {
+    badge.textContent = ''
+    badge.className = 'badge'
+  }
+
+  const prefix = isSmoke ? 'bad-smoke' : 'bad-drink'
+  $(prefix + '-no').className = 'bad-btn' + (value === false ? ' no-selected' : '')
+  $(prefix + '-yes').className = 'bad-btn' + (value === true ? ' yes-selected' : '')
+
+  saveHabits()
+  updateProgress()
+}
+
+function renderHabits() {
+  const h = entry.habits
+  const eod = entry.endOfDay
+
+  // Toggles
+  const toggleMap = {
+    'toggle-wake': h.wokeBefore830,
+    'toggle-exercise': h.morningExercise,
+    'toggle-music': h.musicStudy,
+    'toggle-screen': h.screenTimeOk,
+    'toggle-gym': h.gym,
+    'toggle-plants': h.waterPlants,
+    'toggle-cats': h.catLitter,
+  }
+  Object.entries(toggleMap).forEach(([id, val]) => {
+    const el = $(id)
+    if (el) el.classList.toggle('on', val === true)
+  })
+
+  // Cards
+  const cardMap = {
+    'card-wake': h.wokeBefore830,
+    'card-exercise': h.morningExercise,
+    'card-music': h.musicStudy,
+    'card-screen': h.screenTimeOk,
+    'card-gym': h.gym,
+    'card-plants': h.waterPlants,
+    'card-cats': h.catLitter,
+  }
+  Object.entries(cardMap).forEach(([id, val]) => {
+    const el = $(id)
+    if (el) el.classList.toggle('done', val === true)
+  })
+
+  // Wake expand
+  if (h.wokeBefore830 === true) {
+    showIf('wake-expand', true)
+    if (h.wakeTime) $('wake-time').value = h.wakeTime
+    $('wake-time-display').textContent = h.wakeTime ? 'às ' + h.wakeTime : ''
+  }
+
+  // Exercise expand
+  if (h.morningExercise === true) {
+    showIf('exercise-expand', true)
+    if (h.exerciseType) {
+      const pill = $('ex-' + h.exerciseType)
+      if (pill) pill.classList.add('selected')
+      $('exercise-type-display').textContent = h.exerciseType
+    }
+  }
+
+  // Bad habits
+  if (h.smoking !== null) setBadHabit('smoking', h.smoking)
+  if (h.drinking !== null) setBadHabit('drinking', h.drinking)
+}
+
+function updateProgress() {
+  const h = entry.habits
+  const meals = h.meals || {}
+  const goodCount = [
+    h.wokeBefore830 === true,
+    h.morningExercise === true,
+    meals.breakfast?.healthy === true,
+    meals.lunch?.healthy === true,
+    meals.dinner?.healthy === true,
+    h.musicStudy === true,
+    h.screenTimeOk === true,
+    h.gym === true,
+    h.waterPlants === true,
+    h.catLitter === true,
+  ].filter(Boolean).length
+
+  const total = 10
+  $('progress-count').textContent = goodCount + '/' + total
+  $('progress-fill').style.width = Math.round((goodCount / total) * 100) + '%'
+}
+
+// ============================================================
+// MEALS
+// ============================================================
+function renderMeals() {
+  const meals = entry.habits.meals || {}
+  ;['breakfast', 'lunch', 'dinner'].forEach(key => {
+    const container = $('meal-' + key)
+    if (container) {
+      container.innerHTML = ''
+      container.appendChild(createMealCard(key, meals[key] || {}))
+    }
+  })
+}
+
+function createMealCard(mealKey, data) {
+  const info = MEAL_INFO[mealKey]
+  const div = document.createElement('div')
+  const isHealthy = data.healthy === true
+  const isJunk = data.healthy === false
+  const hasPhoto = !!data.photo
+
+  div.className = 'habit-card' + (isHealthy ? ' done' : isJunk ? '' : '')
+  if (isJunk) div.style.cssText = 'background:var(--orange-light);border-color:#FED7AA'
+
+  let badgeHtml = ''
+  if (isHealthy) badgeHtml = '<span class="badge badge-green" style="margin-left:auto">saudável 💪</span>'
+  if (isJunk) badgeHtml = '<span class="badge" style="background:var(--orange-light);color:var(--orange);margin-left:auto">besteira 😅</span>'
+
+  let photoHtml = ''
+  if (hasPhoto) {
+    photoHtml = `<img src="${data.photo}" class="meal-photo" alt="refeição">`
+    if (data.analyzing) photoHtml += `<div class="analyzing-msg"><span class="spin">⏳</span> Analisando com IA...</div>`
+    if (data.analysisError) photoHtml += `<div class="alert alert-error" style="margin-top:6px">${data.analysisError}</div>`
+    if (data.analysis) photoHtml += `<div class="meal-analysis">${data.analysis}</div>`
+    photoHtml += `<button class="remove-photo" onclick="removeMealPhoto('${mealKey}')">Remover foto</button>`
+  }
+
+  let choicesHtml = ''
+  if (!hasPhoto) {
+    choicesHtml = `
+      <div class="meal-choices">
+        <button class="meal-choice ${isHealthy ? 'healthy' : ''}" onclick="setMealStatus('${mealKey}', true)">✅ Comi bem</button>
+        <button class="meal-choice ${isJunk ? 'junk' : ''}" onclick="setMealStatus('${mealKey}', false)">🍕 Comi besteira</button>
+      </div>`
+  }
+
+  div.innerHTML = `
+    <div class="habit-row">
+      <div class="habit-left">
+        <span class="habit-emoji">${info.emoji}</span>
+        <span class="habit-label">${info.label}</span>
+        ${badgeHtml}
+      </div>
+      <button class="photo-btn" onclick="triggerMealPhoto('${mealKey}')">📸 Foto</button>
+    </div>
+    ${choicesHtml}
+    ${photoHtml}
+    <input type="file" id="file-${mealKey}" accept="image/*" capture="environment" style="display:none" onchange="handleMealPhoto('${mealKey}', this)">
+  `
+  return div
+}
+
+function triggerMealPhoto(mealKey) {
+  $('file-' + mealKey).click()
+}
+
+function handleMealPhoto(mealKey, input) {
+  const file = input.files?.[0]
+  if (!file) return
+  const reader = new FileReader()
+  reader.onload = async (ev) => {
+    const src = ev.target.result
+    const base64 = src.split(',')[1]
+    entry.habits.meals[mealKey] = { photo: src, analyzing: true, analysis: null, healthy: null }
+    saveHabits()
+    renderMeals()
+    updateProgress()
+
+    const apiKey = getSettings().apiKey
+    if (!apiKey) {
+      entry.habits.meals[mealKey].analyzing = false
+      entry.habits.meals[mealKey].analysisError = 'Configure a chave API em Configurações para análise.'
+      saveHabits()
+      renderMeals()
+      return
+    }
+
+    try {
+      const analysis = await analyzeFoodPhotoAPI(base64, MEAL_INFO[mealKey].label, apiKey)
+      entry.habits.meals[mealKey].analyzing = false
+      entry.habits.meals[mealKey].analysis = analysis
+    } catch (err) {
+      entry.habits.meals[mealKey].analyzing = false
+      entry.habits.meals[mealKey].analysisError = err.message
+    }
+    saveHabits()
+    renderMeals()
+  }
+  reader.readAsDataURL(file)
+}
+
+function setMealStatus(mealKey, healthy) {
+  entry.habits.meals[mealKey] = { ...(entry.habits.meals[mealKey] || {}), healthy, photo: null, analysis: null }
+  saveHabits()
+  renderMeals()
+  updateProgress()
+}
+
+function removeMealPhoto(mealKey) {
+  entry.habits.meals[mealKey] = { healthy: null, photo: null, analysis: null }
+  saveHabits()
+  renderMeals()
+  updateProgress()
+}
+
+// ============================================================
+// END OF DAY
+// ============================================================
+function renderEOD() {
+  const eod = entry.endOfDay || {}
+  if (eod.notes) $('eod-notes').value = eod.notes
+  if (eod.energy) setRatingUI('energy', eod.energy)
+  if (eod.mood) setRatingUI('mood', eod.mood)
+  if (eod.focus) setRatingUI('focus', eod.focus)
+  if (eod.insight) {
+    $('insight-text').textContent = eod.insight
+    showIf('insight-section', true)
+  }
+  updateInsightBtn()
+}
+
+function setRating(key, val) {
+  entry.endOfDay[key] = val
+  setRatingUI(key, val)
+  saveEODData()
+  updateInsightBtn()
+}
+
+function setRatingUI(key, val) {
+  const labels = { 1: 'Péssimo 😩', 2: 'Fraco 😕', 3: 'Ok 😐', 4: 'Bom 😊', 5: 'Incrível 🤩' }
+  $(key + '-label').textContent = labels[val] || ''
+  document.querySelectorAll('#' + key + '-row .emoji-btn').forEach(btn => {
+    btn.classList.toggle('selected', parseInt(btn.dataset.v) === val)
+  })
+}
+
+function saveNotes(val) {
+  entry.endOfDay.notes = val
+  saveEODData()
+}
+
+function updateInsightBtn() {
+  const eod = entry.endOfDay
+  const ready = eod.energy && eod.mood && eod.focus
+  $('btn-insight').disabled = !ready
+  $('btn-insight').parentElement.querySelector('.btn-hint').style.display = ready ? 'none' : ''
+}
+
+function saveEOD() {
+  entry.endOfDay.completed = true
+  saveEODData()
+  showAlert('eod-alert', 'success', '✅ Dia registrado!')
+}
+
+async function generateInsight() {
+  const apiKey = getSettings().apiKey
+  if (!apiKey) {
+    showAlert('eod-alert', 'error', 'Configure a chave API em Configurações ⚙️')
+    return
+  }
+
+  const btn = $('btn-insight')
+  btn.disabled = true
+  btn.textContent = '⏳ Gerando insight...'
+
+  try {
+    const insight = await generateInsightAPI(entry, apiKey)
+    entry.endOfDay.insight = insight
+    entry.endOfDay.completed = true
+    saveEODData()
+    $('insight-text').textContent = insight
+    showIf('insight-section', true)
+    showAlert('eod-alert', 'success', '✅ Insight gerado e salvo!')
+  } catch (err) {
+    showAlert('eod-alert', 'error', err.message)
+  } finally {
+    btn.disabled = false
+    btn.textContent = '✨ Gerar insight do dia com IA'
+    updateInsightBtn()
+  }
+}
+
+// ============================================================
+// REPORTS
+// ============================================================
+function setPeriod(p, btn) {
+  reportPeriod = p
+  document.querySelectorAll('.period-btn').forEach(b => b.classList.remove('active'))
+  btn.classList.add('active')
+  renderReports()
+}
+
+function renderReports() {
+  const all = getAllEntries()
+  const entries = []
+  for (let i = reportPeriod - 1; i >= 0; i--) {
+    const d = new Date()
+    d.setDate(d.getDate() - i)
+    const key = d.toISOString().split('T')[0]
+    entries.push(all[key] || null)
+  }
+
+  const valid = entries.filter(Boolean)
+  const container = $('reports-content')
+
+  if (valid.length === 0) {
+    container.innerHTML = `<div class="empty-state"><span>📭</span><p>Nenhum dado ainda</p><small>Comece a registrar seus hábitos hoje!</small></div>`
+    return
+  }
+
+  const chartData = entries.map((e, i) => {
+    const d = new Date()
+    d.setDate(d.getDate() - (reportPeriod - 1 - i))
+    const label = (d.getDate()) + '/' + (d.getMonth() + 1)
+    if (!e) return { label, energy: null, mood: null, focus: null, habits: null }
+    const h = e.habits || {}
+    const meals = h.meals || {}
+    const hCount = [h.wokeBefore830, h.morningExercise, meals.breakfast?.healthy, meals.lunch?.healthy, meals.dinner?.healthy, h.musicStudy, h.screenTimeOk, h.gym, h.waterPlants, h.catLitter].filter(v => v === true).length
+    return { label, energy: e.endOfDay?.energy || null, mood: e.endOfDay?.mood || null, focus: e.endOfDay?.focus || null, habits: hCount }
+  })
+
+  const habitStats = [
+    { key: 'wokeBefore830', label: '☀️ Acordou cedo' },
+    { key: 'morningExercise', label: '🌅 Exercício mat.' },
+    { key: 'musicStudy', label: '🎵 Música' },
+    { key: 'screenTimeOk', label: '📵 Tela < 4h' },
+    { key: 'gym', label: '🏋️‍♀️ Academia' },
+    { key: 'waterPlants', label: '🌿 Plantas' },
+    { key: 'catLitter', label: '🐱 Gatas' },
+  ].map(h => ({
+    ...h,
+    count: valid.filter(e => e.habits?.[h.key] === true).length,
+    total: valid.length,
+  })).sort((a, b) => b.count - a.count)
+
+  const withEnergy = valid.filter(e => e.endOfDay?.energy)
+  const withMood = valid.filter(e => e.endOfDay?.mood)
+  const avgEnergy = withEnergy.length ? (withEnergy.reduce((s, e) => s + e.endOfDay.energy, 0) / withEnergy.length).toFixed(1) : '—'
+  const avgMood = withMood.length ? (withMood.reduce((s, e) => s + e.endOfDay.mood, 0) / withMood.length).toFixed(1) : '—'
+  const noSmoke = valid.filter(e => e.habits?.smoking === false).length
+  const noDrink = valid.filter(e => e.habits?.drinking === false).length
+
+  container.innerHTML = `
+    <div class="stats-grid">
+      <div class="stat-card stat-pink"><span style="font-size:22px">⚡</span><div class="stat-val">${avgEnergy}</div><div class="stat-label">Média de energia</div></div>
+      <div class="stat-card stat-yellow"><span style="font-size:22px">😊</span><div class="stat-val">${avgMood}</div><div class="stat-label">Média de humor</div></div>
+      <div class="stat-card stat-green"><span style="font-size:22px">🚭</span><div class="stat-val">${noSmoke}</div><div class="stat-label">Dias sem fumar</div></div>
+      <div class="stat-card stat-purple"><span style="font-size:22px">💧</span><div class="stat-val">${noDrink}</div><div class="stat-label">Dias sem beber</div></div>
+    </div>
+
+    <div class="card">
+      <h3>📈 Bem-estar ao longo do tempo</h3>
+      ${renderLineChart(chartData)}
+      <div style="display:flex;gap:12px;justify-content:center;margin-top:8px">
+        <div style="display:flex;align-items:center;gap:4px"><div style="width:12px;height:3px;border-radius:2px;background:#FF4D99"></div><span style="font-size:11px;color:#9CA3AF">Energia</span></div>
+        <div style="display:flex;align-items:center;gap:4px"><div style="width:12px;height:3px;border-radius:2px;background:#FFD93D"></div><span style="font-size:11px;color:#9CA3AF">Humor</span></div>
+        <div style="display:flex;align-items:center;gap:4px"><div style="width:12px;height:3px;border-radius:2px;background:#A855F7"></div><span style="font-size:11px;color:#9CA3AF">Foco</span></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>🔥 Hábitos por dia</h3>
+      ${renderBarChart(chartData)}
+    </div>
+
+    <div class="card">
+      <h3>✅ Taxa de conclusão</h3>
+      ${habitStats.map(h => {
+        const pct = h.total > 0 ? Math.round((h.count / h.total) * 100) : 0
+        const fillClass = pct >= 70 ? 'fill-pink' : pct >= 40 ? 'fill-yellow' : 'fill-gray'
+        return `<div class="habit-bar-row">
+          <div class="habit-bar-meta">
+            <span class="habit-bar-label">${h.label}</span>
+            <span class="habit-bar-pct">${h.count}/${h.total} — ${pct}%</span>
+          </div>
+          <div class="habit-bar-track"><div class="habit-bar-fill ${fillClass}" style="width:${pct}%"></div></div>
+        </div>`
+      }).join('')}
+    </div>
+
+    <div id="ai-report-section" style="display:none">
+      <div class="insight-box"><h4>🤖 Análise da IA</h4><p id="ai-report-text"></p></div>
+    </div>
+    <div id="ai-report-alert" style="display:none;margin-bottom:12px"></div>
+    <button class="btn-primary" id="btn-ai-report" onclick="generateWeeklyReportAI()" style="margin-bottom:24px">
+      ✨ Analisar ${reportPeriod} dias com IA
+    </button>
+  `
+
+  // Attach entries to button for use in generateWeeklyReportAI
+  window._reportEntries = entries
+}
+
+function renderLineChart(data) {
+  const W = 320, H = 130, PAD = { top: 10, right: 10, bottom: 24, left: 24 }
+  const innerW = W - PAD.left - PAD.right
+  const innerH = H - PAD.top - PAD.bottom
+
+  const xStep = innerW / Math.max(data.length - 1, 1)
+  const yScale = v => v ? innerH - ((v - 1) / 4 * innerH) : null
+
+  const makeLine = (key, color) => {
+    const pts = data.map((d, i) => ({ x: i * xStep, y: yScale(d[key]) })).filter(p => p.y !== null)
+    if (pts.length < 2) return ''
+    const d = pts.map((p, i) => (i === 0 ? 'M' : 'L') + p.x.toFixed(1) + ',' + p.y.toFixed(1)).join(' ')
+    return `<path d="${d}" fill="none" stroke="${color}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>`
+  }
+
+  const showEvery = Math.ceil(data.length / 6)
+  const xLabels = data.map((d, i) => {
+    if (i % showEvery !== 0 && i !== data.length - 1) return ''
+    return `<text x="${(i * xStep).toFixed(1)}" y="${innerH + 16}" text-anchor="middle" fill="#9CA3AF" font-size="9">${d.label}</text>`
+  }).join('')
+
+  const yLabels = [1, 3, 5].map(v => {
+    const y = yScale(v).toFixed(1)
+    return `<text x="-4" y="${y}" text-anchor="end" dominant-baseline="middle" fill="#9CA3AF" font-size="9">${v}</text><line x1="0" y1="${y}" x2="${innerW}" y2="${y}" stroke="#F3F4F6" stroke-width="1"/>`
+  }).join('')
+
+  return `<div class="chart-wrap"><svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto">
+    <g transform="translate(${PAD.left},${PAD.top})">
+      ${yLabels}
+      ${makeLine('energy', '#FF4D99')}
+      ${makeLine('mood', '#FFD93D')}
+      ${makeLine('focus', '#A855F7')}
+      ${xLabels}
+    </g>
+  </svg></div>`
+}
+
+function renderBarChart(data) {
+  const W = 320, H = 100, PAD = { top: 8, right: 10, bottom: 20, left: 24 }
+  const innerW = W - PAD.left - PAD.right
+  const innerH = H - PAD.top - PAD.bottom
+  const maxVal = 10
+  const barWidth = Math.max(4, (innerW / data.length) * 0.6)
+  const barSpacing = innerW / data.length
+
+  const bars = data.map((d, i) => {
+    if (d.habits === null) return ''
+    const barH = (d.habits / maxVal) * innerH
+    const x = i * barSpacing + (barSpacing - barWidth) / 2
+    const y = innerH - barH
+    return `<rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${barWidth.toFixed(1)}" height="${barH.toFixed(1)}" fill="#FF4D99" rx="3"/>`
+  }).join('')
+
+  const showEvery = Math.ceil(data.length / 6)
+  const xLabels = data.map((d, i) => {
+    if (i % showEvery !== 0 && i !== data.length - 1) return ''
+    const x = i * barSpacing + barSpacing / 2
+    return `<text x="${x.toFixed(1)}" y="${innerH + 14}" text-anchor="middle" fill="#9CA3AF" font-size="9">${d.label}</text>`
+  }).join('')
+
+  return `<div class="chart-wrap"><svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto">
+    <g transform="translate(${PAD.left},${PAD.top})">
+      <line x1="0" y1="${innerH}" x2="${innerW}" y2="${innerH}" stroke="#F3F4F6" stroke-width="1"/>
+      ${bars}
+      ${xLabels}
+    </g>
+  </svg></div>`
+}
+
+// ============================================================
+// SETTINGS
+// ============================================================
+function saveConfig() {
+  saveSettingsData({ apiKey: tempApiKey })
+  showAlert('config-alert', 'success', '✅ Configurações salvas!')
+}
+
+// ============================================================
+// ALERTS
+// ============================================================
+function showAlert(containerId, type, message) {
+  const el = $(containerId)
+  el.className = 'alert alert-' + type
+  el.textContent = message
+  el.style.display = 'block'
+  setTimeout(() => { el.style.display = 'none' }, 3000)
+}
+
+// ============================================================
+// CLAUDE API
+// ============================================================
+async function analyzeFoodPhotoAPI(base64, mealLabel, apiKey) {
+  const res = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'x-api-key': apiKey, 'anthropic-version': '2023-06-01' },
+    body: JSON.stringify({
+      model: 'claude-opus-4-6',
+      max_tokens: 500,
+      messages: [{
+        role: 'user',
+        content: [
+          { type: 'image', source: { type: 'base64', media_type: 'image/jpeg', data: base64 } },
+          { type: 'text', text: `Analise essa refeição (${mealLabel}) para o objetivo de ganho de músculo e perda de gordura. Em português, de forma direta e bem-humorada:\n1. **Avaliação geral** (1 frase com emoji)\n2. **Pontos positivos** (máx 2 bullets)\n3. **O que melhorar** (máx 2 bullets)\n4. **Nota** 1–10\n\nMáx 150 palavras. Seja honesta mas encorajadora.` }
+        ]
+      }]
+    })
+  })
+  if (!res.ok) { const e = await res.json().catch(() => ({})); throw new Error(e.error?.message || 'Erro na análise') }
+  return (await res.json()).content[0].text
+}
+
+async function generateInsightAPI(entryData, apiKey) {
+  const h = entryData.habits || {}
+  const eod = entryData.endOfDay || {}
+  const meals = h.meals || {}
+
+  const summary = `Hábitos: acordou cedo=${h.wokeBefore830}, exercício matinal=${h.morningExercise}(${h.exerciseType||''}), café saudável=${meals.breakfast?.healthy}, almoço saudável=${meals.lunch?.healthy}, jantar saudável=${meals.dinner?.healthy}, música=${h.musicStudy}, tela<4h=${h.screenTimeOk}, academia=${h.gym}, plantas=${h.waterPlants}, gatas=${h.catLitter}, fumou=${h.smoking}, bebeu=${h.drinking}. Bem-estar: energia=${eod.energy}/5, humor=${eod.mood}/5, foco=${eod.focus}/5${eod.notes ? '. Obs: '+eod.notes : ''}.`
+
+  const res = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'x-api-key': apiKey, 'anthropic-version': '2023-06-01' },
+    body: JSON.stringify({
+      model: 'claude-opus-4-6',
+      max_tokens: 350,
+      messages: [{
+        role: 'user',
+        content: `Você é uma coach de saúde bem-humorada. Analise o dia: ${summary}\n\nGere um insight em português:\n1. Frase de abertura com emoji (honesta/motivadora)\n2. Correlação mais importante entre hábitos e bem-estar (2-3 frases)\n3. Dica prática para amanhã (1-2 frases)\n\nMáx 120 palavras. Tom: honesto, caloroso, sem drama.`
+      }]
+    })
+  })
+  if (!res.ok) { const e = await res.json().catch(() => ({})); throw new Error(e.error?.message || 'Erro ao gerar insight') }
+  return (await res.json()).content[0].text
+}
+
+async function generateWeeklyReportAI() {
+  const apiKey = getSettings().apiKey
+  if (!apiKey) { showAlert('ai-report-alert', 'error', 'Configure a chave API em Configurações ⚙️'); return }
+
+  const btn = $('btn-ai-report')
+  btn.disabled = true
+  btn.textContent = '⏳ Analisando...'
+
+  const entries = window._reportEntries || []
+  const summary = entries.filter(Boolean).map(e => {
+    const h = e.habits || {}
+    const hCount = [h.wokeBefore830, h.morningExercise, h.musicStudy, h.screenTimeOk, h.gym, h.waterPlants, h.catLitter].filter(v => v === true).length
+    return { date: e.date, habits: hCount, smoking: h.smoking, drinking: h.drinking, energy: e.endOfDay?.energy, mood: e.endOfDay?.mood, focus: e.endOfDay?.focus }
+  })
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-api-key': apiKey, 'anthropic-version': '2023-06-01' },
+      body: JSON.stringify({
+        model: 'claude-opus-4-6',
+        max_tokens: 450,
+        messages: [{
+          role: 'user',
+          content: `Coach de saúde, analise ${reportPeriod} dias de dados: ${JSON.stringify(summary)}\n\nRelatório em português:\n1. **Resumo da semana** (1-2 frases com emoji)\n2. **Padrão mais importante** (correlação hábitos × bem-estar)\n3. **Melhor dia e por quê**\n4. **1 hábito para priorizar**\n\nMáx 150 palavras. Tom motivador e direto.`
+        }]
+      })
+    })
+    if (!res.ok) throw new Error('Erro na API')
+    const report = (await res.json()).content[0].text
+    $('ai-report-text').textContent = report
+    showIf('ai-report-section', true)
+  } catch (err) {
+    showAlert('ai-report-alert', 'error', err.message)
+  } finally {
+    btn.disabled = false
+    btn.textContent = `✨ Analisar ${reportPeriod} dias com IA`
+  }
+}
+
+// ============================================================
+// START
+// ============================================================
+init()
+</script>
+</body>
+</html>
