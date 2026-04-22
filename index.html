@@ -778,7 +778,7 @@ function createMealCard(mealKey, data) {
     </div>
     ${choicesHtml}
     ${photoHtml}
-    <input type="file" id="file-${mealKey}" accept="image/*" capture="environment" style="display:none" onchange="handleMealPhoto('${mealKey}', this)">
+    <input type="file" id="file-${mealKey}" accept="image/*" style="display:none" onchange="handleMealPhoto('${mealKey}', this)">
   `
   return div
 }
