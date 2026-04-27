@@ -148,6 +148,13 @@
   .meal-choice.healthy { background: var(--green); color: white; }
   .meal-choice.junk { background: var(--orange); color: white; }
   .claude-meal-btn { font-size: 11px; font-weight: 700; color: var(--purple); background: var(--purple-light); padding: 6px 10px; border-radius: 10px; border: none; cursor: pointer; display: flex; align-items: center; gap: 4px; flex-shrink: 0; margin-top: 8px; width: 100%; justify-content: center; }
+  .meal-photo-btn { font-size: 11px; font-weight: 700; color: var(--purple); background: var(--purple-light); padding: 6px 10px; border-radius: 10px; cursor: pointer; display: flex; align-items: center; gap: 4px; flex-shrink: 0; white-space: nowrap; }
+  .meal-photo-wrap { margin-top: 8px; }
+  .meal-photo-preview { width: 100%; height: 120px; object-fit: cover; border-radius: 10px; display: block; }
+  .meal-remove-photo { background: none; border: none; color: var(--gray-400); font-size: 11px; text-decoration: underline; cursor: pointer; margin-top: 4px; display: block; padding: 0; }
+  .meal-desc-input { width: 100%; margin-top: 8px; padding: 8px 10px; border-radius: 10px; border: 1.5px solid var(--gray-200); background: var(--gray-50); color: var(--gray-800); font-size: 12px; font-family: inherit; resize: none; min-height: 44px; line-height: 1.5; transition: border-color 0.15s; }
+  .meal-desc-input:focus { outline: none; border-color: var(--pink); }
+  .meal-desc-input::placeholder { color: var(--gray-400); }
 
   /* End of Day */
   .rating-block { margin-bottom: 24px; }
@@ -590,6 +597,7 @@ function emptyEntry(date) {
 let currentDate = todayKey()
 let entry = getEntry(currentDate) || emptyEntry(currentDate)
 if (!entry.habits.custom) entry.habits.custom = {}
+if (!entry.endOfDay) entry.endOfDay = { energy: null, mood: null, focus: null, notes: '', insight: '', completed: false }
 let reportPeriod = 7
 let newHabitType = 'good'
 
@@ -1125,6 +1133,8 @@ function createMealCard(mealKey, data) {
     <button class="meal-choice ${isHealthy ? 'healthy' : ''}" onclick="setMealStatus('${mealKey}', true)">✅ Comi bem</button>
     <button class="meal-choice ${isJunk ? 'junk' : ''}" onclick="setMealStatus('${mealKey}', false)">🍕 Comi besteira</button>
   </div>`
+  const descHtml = `<textarea class="meal-desc-input" rows="2" placeholder="O que você comeu? (opcional)" oninput="setMealDesc('${mealKey}', this.value)">${data.desc || ''}</textarea>`
+  const photoPreview = data.photo ? `<div class="meal-photo-wrap"><img src="${data.photo}" class="meal-photo-preview"><button class="meal-remove-photo" onclick="removeMealPhoto('${mealKey}')">Remover foto</button></div>` : ''
   const claudeHtml = `<button class="claude-meal-btn" onclick="openClaudeMeal('${mealKey}')">🤖 Analisar no Claude Pro</button>`
   div.innerHTML = `
     <div class="habit-row">
@@ -1133,16 +1143,43 @@ function createMealCard(mealKey, data) {
         <span class="habit-label">${info.label}</span>
         ${badgeHtml}
       </div>
+      <label class="meal-photo-btn">📸 Foto<input type="file" accept="image/*" capture="environment" style="display:none" onchange="setMealPhoto('${mealKey}', this)"></label>
     </div>
     ${choicesHtml}
+    ${descHtml}
+    ${photoPreview}
     ${claudeHtml}
   `
   return div
 }
 
 function setMealStatus(mealKey, healthy) {
-  entry.habits.meals[mealKey] = { healthy }
+  const existing = entry.habits.meals[mealKey] || {}
+  entry.habits.meals[mealKey] = { ...existing, healthy }
   saveHabits(); renderMeals(); updateProgress()
+}
+
+function setMealDesc(mealKey, val) {
+  if (!entry.habits.meals[mealKey]) entry.habits.meals[mealKey] = {}
+  entry.habits.meals[mealKey].desc = val
+  saveHabits()
+}
+
+function setMealPhoto(mealKey, input) {
+  const file = input.files?.[0]
+  if (!file) return
+  const reader = new FileReader()
+  reader.onload = (ev) => {
+    if (!entry.habits.meals[mealKey]) entry.habits.meals[mealKey] = {}
+    entry.habits.meals[mealKey].photo = ev.target.result
+    saveHabits(); renderMeals()
+  }
+  reader.readAsDataURL(file)
+}
+
+function removeMealPhoto(mealKey) {
+  if (entry.habits.meals[mealKey]) delete entry.habits.meals[mealKey].photo
+  saveHabits(); renderMeals()
 }
 
 // ============================================================
